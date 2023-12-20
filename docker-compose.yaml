@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./docker/nginx
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - wp-html:/var/www/html
+      - ./docker/wordpress/wp-config.php:/var/www/html/wp-config.php
+    networks:
+      wp-site:
+        aliases:
+          - automation.wp-store.local
+
+  php:
+    container_name: php
+    build:
+      context: ./docker/php
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - wp-html:/var/www/html
+      - ./docker/wordpress/wp-config.php:/var/www/html/wp-config.php
+    networks:
+      - wp-site
+
+  redis:
+    container_name: redis
+    image: 'redis:7.2'
+    restart: always
+    ports:
+      - '6379:6379'
+    expose:
+      - '6379'
+    volumes:
+      - db-redis:/data
+    networks:
+      - wp-site
+
+  mysql:
+    container_name: mysql
+    build:
+      context: ./docker/mysql
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - db-mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - wp-site
+
+  wordpress:
+    container_name: wordpress
+    build:
+      context: ./docker/wordpress
+      dockerfile: ./Dockerfile
+    restart: always
+    depends_on:
+      - mysql
+      - nginx
+    volumes:
+      - wp-html:/var/www/html
+      - ./docker/wordpress/wp-config.php:/var/www/html/wp-config.php
+    networks:
+      - wp-site
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    depends_on:
+      - mysql
+    image: phpmyadmin:5.2
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: mysql
+    networks:
+      - wp-site
+
+networks:
+  wp-site:
+
+volumes:
+  db-mysql:
+  db-redis:
+  wp-html:
