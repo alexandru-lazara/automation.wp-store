@@ -1,3 +1,7 @@
+.log
 .pem
 .idea
+.pytest_cache
+logs
+venv
 ssl
