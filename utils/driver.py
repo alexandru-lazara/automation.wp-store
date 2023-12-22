@@ -1,4 +1,4 @@
-"""Tests Driver File."""
+"""Tests WebDriver File."""
 
 import pytest
 from selenium import webdriver
@@ -29,7 +29,7 @@ def driver(request):
     Fixture that provides a WebDriver instance based on specified browser parameters.
 
     Args:
-        request: The Pytest fixture request object
+        request: The Pytest fixture request object.
 
     """
     browser, mobile_emulation = request.param
