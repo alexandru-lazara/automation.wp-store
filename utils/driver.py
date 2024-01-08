@@ -23,7 +23,7 @@ BROWSER_PARAMS = [
 ]
 
 
-@pytest.fixture(params=BROWSER_PARAMS, scope="module")
+@pytest.fixture(params=BROWSER_PARAMS, scope="session")
 def driver(request):
     """
     Fixture that provides a WebDriver instance based on specified browser parameters.

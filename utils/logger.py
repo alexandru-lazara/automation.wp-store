@@ -7,7 +7,7 @@ import time
 import pytest
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def logger():
     """
     Fixture that provides a logging instance.
@@ -20,28 +20,48 @@ def logger():
 
 
 @pytest.fixture(autouse=True)
-def _log_test_name(logger):
+def _log_test_case_name(logger):
     """
-    Fixture that logs the name of the current test.
+    Fixture that logs the name of the current test case.
 
     Args:
         logger: The logging instance.
 
     """
     test_name = os.environ.get('PYTEST_CURRENT_TEST')
-    logger.info("[TEST NAME\t\t] %s.", test_name)
+    logger.info("TEST CASE")
+    logger.info("%s.", test_name)
 
 
 @pytest.fixture(autouse=True)
-def _log_test_duration_function(logger):
+def _log_test_case_duration(logger):
     """
-    Fixture that logs the duration of the current test in seconds at the end of the test.
+    Fixture that logs the duration of the current test case (in seconds) at the end of the test case.
 
     Args:
         logger: The logging instance.
 
     """
     test_start = time.time()
+
     yield
-    test_finish = time.time()
-    logger.info("[TEST DURATION\t] %s seconds.", round(test_finish - test_start, 2))
+    logger.info("Test Case duration: \t %.2f seconds.", time.time() - test_start)
+    logger.info("")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _log_test_suite_duration(logger):
+    """
+    Fixture that logs the duration of the test suite (in seconds) at the end of the test suite.
+
+    Args:
+        logger: The logging instance.
+
+    """
+    logger.info("Testing started...")
+    logger.info("")
+    test_start = time.time()
+
+    yield
+    logger.info("")
+    logger.info("Test Suite duration: \t %.2f seconds.", time.time() - test_start)
